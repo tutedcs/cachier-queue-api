@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
 using System.Data;
 using Dapper;
-using CashierQueueAPI.Models
+using CashierQueueAPI.Models;
 
 namespace CashierQueueAPI.Controllers
 {
@@ -27,8 +27,8 @@ namespace CashierQueueAPI.Controllers
                 using (var conexion = new SqlConnection(cadenaSQL))
                 {
                     conexion.Open();
-                    string query = "SELECT * FROM USUARIO WHERE activo = 1";
-                    var usuarios = conexion.Query<Usuario>(query).ToList();
+                    string query = "SELECT idUsuario, nombre, apellido, rol, usuario FROM USUARIO WHERE activo = 1";
+                    var usuarios = conexion.Query(query).ToList();
                     return Ok(usuarios);
                 }
             }
@@ -38,4 +38,4 @@ namespace CashierQueueAPI.Controllers
             }
         }
     }
-}
+ }
