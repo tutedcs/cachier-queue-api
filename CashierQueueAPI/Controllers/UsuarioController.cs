@@ -40,7 +40,7 @@ namespace CashierQueueAPI.Controllers
 
         [HttpGet]
         [Route("BuscarUsuario")]
-        public IActionResult BuscarUser([FromQuery] string nombre, [FromQuery] string apellido)
+        public IActionResult BuscarUser([FromQuery] string usuario)
         {
             try
             {
@@ -48,12 +48,12 @@ namespace CashierQueueAPI.Controllers
                 {
                     conexion.Open();
                     string query = @"SELECT 
-                                    idUsuario, rol, usuario, activo FROM 
+                                    idUsuario, rol, nombre, apellido, activo FROM 
                                     USUARIO WHERE 
-                                    nombre = @nombre AND apellido = @apellido";
-                    var parameters = new { nombre, apellido };
+                                    usuario = @usuario";
+                    var parameters = new { usuario };
                     var usuarios = conexion.Query(query, parameters).ToList();
-                    return Ok(usuarios);
+                    return StatusCode(200, new { code = "200", coincidencia = usuarios });
                 }
             }
             catch (Exception ex)
