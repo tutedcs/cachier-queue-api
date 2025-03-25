@@ -9,11 +9,31 @@ nombre VARCHAR(20) NOT NULL
 INSERT INTO ROL (nombre) VALUES ('ADMINISTRADOR')
 INSERT INTO ROL (nombre) VALUES ('USUARIO')
 
+CREATE TABLE SECCION (
+	idSeccion INT IDENTITY PRIMARY KEY NOT NULL,
+	nSeccion INT NOT NULL
+)
+
+INSERT INTO SECCION (nSeccion) VALUES (0);
+INSERT INTO SECCION (nSeccion) VALUES (1);
+INSERT INTO SECCION (nSeccion) VALUES (2);
+INSERT INTO SECCION (nSeccion) VALUES (3);
+INSERT INTO SECCION (nSeccion) VALUES (4);
 
 CREATE TABLE CAJAS (
     idCaja INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+	nCaja INT NOT NULL,
+	seccion INT NOT NULL,
     isLogged BIT NOT NULL,
+	FOREIGN KEY (seccion) REFERENCES SECCION(idSeccion),
 );
+
+INSERT INTO CAJAS (seccion, nCaja, isLogged) VALUES (0, 0, 0); -- Esta es la "Caja" para los administradores
+
+INSERT INTO CAJAS (seccion, nCaja, isLogged) VALUES (1, 1, 0);
+INSERT INTO CAJAS (seccion, nCaja, isLogged) VALUES (2, 1, 0);
+INSERT INTO CAJAS (seccion, nCaja, isLogged) VALUES (3, 1, 0);
+INSERT INTO CAJAS (seccion, nCaja, isLogged) VALUES (4, 1, 0);
 
 
 CREATE TABLE USUARIO (
@@ -22,9 +42,8 @@ CREATE TABLE USUARIO (
     apellido VARCHAR(20) NOT NULL,
     usuario VARCHAR(20) UNIQUE NOT NULL,
     rol INT NOT NULL,
-	idCaja INT NOT NULL,
-	activo BIT NOT NULL,
+	caja INT NOT NULL,
     FOREIGN KEY (rol) REFERENCES ROL(idRol),
-    FOREIGN KEY (idCaja) REFERENCES CAJAS(idCaja)
+    FOREIGN KEY (caja) REFERENCES CAJAS(idCaja)
 );
 
