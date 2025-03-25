@@ -29,7 +29,29 @@ namespace CashierQueueAPI.Controllers
                 using (var conexion = new SqlConnection(cadenaSQL))
                 {
                     conexion.Open();
-                    var query = "SELECT * FROM CAJAS";
+                    var query = "SELECT * FROM CAJAS WHERE idCaja > 0";
+                    lista = conexion.Query<Cajas>(query).ToList();
+                }
+                return StatusCode(StatusCodes.Status200OK, new { code = "200", Response = lista });
+            }
+            catch (Exception error)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = error.Message, Response = lista });
+            }
+        }
+
+        [HttpGet]
+        [Route("GetCajasNoLogeadas")]
+        public IActionResult ListaNoLogeadas()
+        {
+            List<Cajas> lista = new List<Cajas>();
+
+            try
+            {
+                using (var conexion = new SqlConnection(cadenaSQL))
+                {
+                    conexion.Open();
+                    var query = "SELECT * FROM CAJAS WHERE isLogged = 0 AND idCaja > 0";
                     lista = conexion.Query<Cajas>(query).ToList();
                 }
                 return StatusCode(StatusCodes.Status200OK, new { code = "200", Response = lista });
