@@ -104,10 +104,9 @@ namespace CashierQueueAPI.Controllers
                 using (var conexion = new SqlConnection(cadenaSQL))
                 {
                     conexion.Open();
-                    int cajaAsignada = usuario.rol == 1 ? 1 : 2; // Asignar caja según el rol
                     string query = @"INSERT INTO USUARIO (nombre, apellido, usuario, rol, caja) 
                                      VALUES (@nombre, @apellido, @usuario, @rol, @caja)";
-                    var parameters = new { usuario.nombre, usuario.apellido, usuario.usuario, usuario.rol, caja = cajaAsignada };
+                    var parameters = new { usuario.nombre, usuario.apellido, usuario.usuario, usuario.rol, caja = usuario.caja };
                     conexion.Execute(query, parameters);
                     return StatusCode(200, new { code = "200", mensaje = "Usuario registrado correctamente" });
                 }
