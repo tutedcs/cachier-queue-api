@@ -27,6 +27,7 @@ namespace CashierQueueAPI.Controllers
                 using (var conexion = new SqlConnection(cadenaSQL))
                 {
                     conexion.Open();
+                    //listar or seccion o traer todas las cajas
                     string query = @"SELECT
                     usuario.idUsuario,
                     usuario.nombre,
@@ -37,7 +38,8 @@ namespace CashierQueueAPI.Controllers
                     seccion.nSeccion AS seccion
                     FROM USUARIO as usuario
                     INNER JOIN CAJAS as caja ON caja.idCaja = usuario.caja
-                    LEFT JOIN SECCION as seccion ON seccion.idSeccion = caja.seccion";
+                    LEFT JOIN SECCION as seccion ON seccion.idSeccion = caja.seccion
+                    WHERE (@idSeccion IS NULL OR seccion.idSeccion = @idSeccion)";
                     var usuarios = conexion.Query(query).ToList();
                     return Ok(usuarios);
                 }
