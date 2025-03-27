@@ -30,7 +30,7 @@ namespace CashierQueueAPI.Controllers
                 using var conexion = new SqlConnection(cadenaSQL);
                 conexion.Open();
 
-                string query = "SELECT * FROM SECCION";
+                string query = "SELECT * FROM SECCION WHERE nSeccion > 0";
                 secciones = conexion.Query<Seccion>(query);
 
                 success = true;

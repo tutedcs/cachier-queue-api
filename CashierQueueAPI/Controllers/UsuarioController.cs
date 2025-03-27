@@ -27,7 +27,17 @@ namespace CashierQueueAPI.Controllers
                 using (var conexion = new SqlConnection(cadenaSQL))
                 {
                     conexion.Open();
-                    string query = "SELECT idUsuario, nombre, apellido, rol, usuario, caja FROM USUARIO";
+                    string query = @"SELECT
+                    usuario.idUsuario,
+                    usuario.nombre,
+                    usuario.apellido,
+                    usuario.usuario,
+                    usuario.rol,
+                    caja.nCaja AS caja,
+                    seccion.nSeccion AS seccion
+                    FROM USUARIO as usuario
+                    INNER JOIN CAJAS as caja ON caja.idCaja = usuario.caja
+                    LEFT JOIN SECCION as seccion ON seccion.idSeccion = caja.seccion";
                     var usuarios = conexion.Query(query).ToList();
                     return Ok(usuarios);
                 }
@@ -37,6 +47,8 @@ namespace CashierQueueAPI.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
+
 
         [HttpGet]
         [Route("BuscarUsuario")]
@@ -178,52 +190,5 @@ namespace CashierQueueAPI.Controllers
             }
         }
 
-
-        //[HttpPut]
-        //[Route("Activar/{idUsuario}")]
-        //public IActionResult Activar(int idUsuario)
-        //{
-        //    try
-        //    {
-        //        using (var conexion = new SqlConnection(cadenaSQL))
-        //        {
-        //            conexion.Open();
-        //            string query = @"UPDATE USUARIO 
-        //                         SET activo = 1
-        //                         WHERE idUsuario = @idUsuario";
-        //            var parameters = new { idUsuario };
-        //            conexion.Execute(query, parameters);
-        //            return StatusCode(200, new { code = "200", mensaje = "Usuario editado correctamente" });
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Internal server error: " + ex.Message);
-        //    }
-        //}
-
-
-        //[HttpPut]
-        //[Route("Desactivar/{idUsuario}")]
-        //public IActionResult Desactivar(int idUsuario)
-        //{
-        //    try
-        //    {
-        //        using (var conexion = new SqlConnection(cadenaSQL))
-        //        {
-        //            conexion.Open();
-        //            string query = @"UPDATE USUARIO 
-        //                         SET activo = 0
-        //                         WHERE idUsuario = @idUsuario";
-        //            var parameters = new { idUsuario };
-        //            conexion.Execute(query, parameters);
-        //            return StatusCode(200, new { code="200", mensaje = "Usuario editado correctamente" });
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Internal server error: " + ex.Message);
-        //    }
-        //}
     }
  }

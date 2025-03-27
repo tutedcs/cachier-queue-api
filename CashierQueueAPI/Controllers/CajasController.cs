@@ -51,7 +51,7 @@ namespace CashierQueueAPI.Controllers
                 using (var conexion = new SqlConnection(cadenaSQL))
                 {
                     conexion.Open();
-                    var query = "SELECT * FROM CAJAS WHERE isLogged = 0 AND idCaja > 0";
+                    var query = "SELECT * FROM CAJAS WHERE isLogged = 0 AND nCaja > 0";
                     lista = conexion.Query<Cajas>(query).ToList();
                 }
                 return StatusCode(StatusCodes.Status200OK, new { code = "200", Response = lista });
@@ -62,5 +62,26 @@ namespace CashierQueueAPI.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetCajasXSeccion/{idSeccion}")]
+        public IActionResult ListarXSeccion(int idSeccion)
+        {
+            List<Cajas> lista = new List<Cajas>();
+
+            try
+            {
+                using (var conexion = new SqlConnection(cadenaSQL))
+                {
+                    conexion.Open();
+                    var query = "SELECT * FROM CAJAS WHERE seccion = @idSeccion";
+                    lista = conexion.Query<Cajas>(query, new { idSeccion }).ToList();
+                }
+                return StatusCode(StatusCodes.Status200OK, new { code = "200", Response = lista });
+            }
+            catch (Exception error)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = error.Message, Response = lista });
+            }
+        }
     }
 }
