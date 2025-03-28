@@ -20,27 +20,28 @@ namespace CashierQueueAPI.Controllers
 
         [HttpGet]
         [Route("Listar")]
-        public IActionResult Listar()
+        public IActionResult Listar([FromQuery] int? idSeccion = null)
         {
             try
             {
                 using (var conexion = new SqlConnection(cadenaSQL))
                 {
                     conexion.Open();
-                    //listar or seccion o traer todas las cajas
-                    string query = @"SELECT
-                    usuario.idUsuario,
-                    usuario.nombre,
-                    usuario.apellido,
-                    usuario.usuario,
-                    usuario.rol,
-                    caja.nCaja AS caja,
-                    seccion.nSeccion AS seccion
-                    FROM USUARIO as usuario
-                    INNER JOIN CAJAS as caja ON caja.idCaja = usuario.caja
-                    LEFT JOIN SECCION as seccion ON seccion.idSeccion = caja.seccion
-                    WHERE (@idSeccion IS NULL OR seccion.idSeccion = @idSeccion)";
-                    var usuarios = conexion.Query(query).ToList();
+                    string query = @"
+            SELECT
+                usuario.idUsuario,
+                usuario.nombre,
+                usuario.apellido,
+                usuario.usuario,
+                usuario.rol,
+                caja.nCaja AS caja,
+                seccion.nSeccion AS seccion
+            FROM USUARIO AS usuario
+            INNER JOIN CAJAS AS caja ON caja.idCaja = usuario.caja
+            LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
+            WHERE (@idSeccion IS NULL OR seccion.idSeccion = @idSeccion)";
+
+                    var usuarios = conexion.Query(query, new { idSeccion }).ToList();
                     return Ok(usuarios);
                 }
             }
@@ -50,7 +51,25 @@ namespace CashierQueueAPI.Controllers
             }
         }
 
-
+        [HttpGet]
+        [Route("BuscarPorId/{idUsuario}")]
+        public IActionResult BuscarPorId(int idUsuario)
+        {
+            try
+            {
+                using (var conexion = new SqlConnection(cadenaSQL))
+                {
+                    conexion.Open();
+                    string query = "SELECT * FROM USUARIO WHERE idUsuario = @idUsuario";
+                    var usuario = conexion.QueryFirstOrDefault<Usuario>(query, new { idUsuario = idUsuario });
+                    return usuario != null ? Ok(usuario) : NotFound("Usuario no encontrado");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
 
         [HttpGet]
         [Route("BuscarUsuario")]

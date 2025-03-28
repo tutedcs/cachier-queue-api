@@ -83,5 +83,33 @@ namespace CashierQueueAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = error.Message, Response = lista });
             }
         }
+
+        [HttpGet]
+        [Route("GetInfoCaja/{idCaja}")]
+        public IActionResult GetInfoCaja(int idCaja)
+        {
+            try
+            {
+                using (var conexion = new SqlConnection(cadenaSQL))
+                {
+                    conexion.Open();
+                    var query = @"SELECT
+	                    caja.idCaja,
+                        caja.nCaja AS nCaja,
+	                    seccion.idSeccion,
+                        seccion.nSeccion AS seccion
+                    FROM CAJAS AS caja
+                    LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
+                    WHERE idCaja = @idCaja";
+                    var lista = conexion.Query<Cajas>(query, new { idCaja }).ToList();
+                    return StatusCode(StatusCodes.Status200OK, new { code = "200", Response = lista });
+
+                }
+            }
+            catch (Exception error)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = error.Message });
+            }
+        }
     }
 }
