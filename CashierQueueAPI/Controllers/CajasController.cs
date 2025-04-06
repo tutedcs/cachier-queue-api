@@ -32,7 +32,17 @@ namespace CashierQueueAPI.Controllers
                     var query = "SELECT * FROM CAJAS WHERE idCaja > 0";
                     lista = conexion.Query<Cajas>(query).ToList();
                 }
+
+                if (lista == null || !lista.Any())
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, new { mensaje = "No se encontraron cajas." });
+                }
+
                 return StatusCode(StatusCodes.Status200OK, new { code = "200", Response = lista });
+            }
+            catch (SqlException sqlEx)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = "Error al conectar con la base de datos.", detalle = sqlEx.Message });
             }
             catch (Exception error)
             {

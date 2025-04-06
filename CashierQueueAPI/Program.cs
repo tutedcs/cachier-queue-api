@@ -5,8 +5,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 //para error de cords
-builder.Services.AddCors(options =>
-{
+builder.Services.AddCors(options => {
     options.AddPolicy(name: cors, builder =>
     {
         builder.WithMethods("*");
@@ -14,9 +13,8 @@ builder.Services.AddCors(options =>
         builder.WithOrigins("*");
     });
 });
-builder.Services.AddHttpClient(); // Add HttpClient service
-
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

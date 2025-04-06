@@ -4,7 +4,7 @@
     {
 
         public int idSeccion { get; set; }
-
         public int nSeccion { get; set; }
+        public string? nombre { get; set;}
     }
 }

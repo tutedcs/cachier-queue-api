@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
 using System.Data;
 using Dapper;
+using System.Security.Cryptography;
 using CashierQueueAPI.Models;
+using System.Text;
 
 namespace CashierQueueAPI.Controllers
 {
@@ -28,18 +30,19 @@ namespace CashierQueueAPI.Controllers
                 {
                     conexion.Open();
                     string query = @"
-            SELECT
-                usuario.idUsuario,
-                usuario.nombre,
-                usuario.apellido,
-                usuario.usuario,
-                usuario.rol,
-                caja.nCaja AS caja,
-                seccion.nSeccion AS seccion
-            FROM USUARIO AS usuario
-            INNER JOIN CAJAS AS caja ON caja.idCaja = usuario.caja
-            LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
-            WHERE (@idSeccion IS NULL OR seccion.idSeccion = @idSeccion)";
+                    SELECT
+                        usuario.idUsuario,
+                        usuario.nombre,
+                        usuario.apellido,
+                        usuario.usuario,
+                        usuario.rol,
+                        caja.nCaja AS caja,
+                        seccion.nSeccion AS seccion
+                    FROM USUARIO AS usuario
+                    INNER JOIN CAJAS AS caja ON caja.idCaja = usuario.caja
+                    LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
+                    WHERE (@idSeccion IS NULL OR seccion.idSeccion = @idSeccion)
+                    ORDER BY CASE WHEN usuario.rol = 1 THEN 0 ELSE 1 END, usuario.rol";
 
                     var usuarios = conexion.Query(query, new { idSeccion }).ToList();
                     return Ok(usuarios);
@@ -60,7 +63,20 @@ namespace CashierQueueAPI.Controllers
                 using (var conexion = new SqlConnection(cadenaSQL))
                 {
                     conexion.Open();
-                    string query = "SELECT * FROM USUARIO WHERE idUsuario = @idUsuario";
+                    string query = @"
+                SELECT
+                    usuario.idUsuario, 
+                    usuario.nombre, 
+                    usuario.apellido, 
+                    usuario.rol, 
+                    caja.nCaja,
+                    seccion.nSeccion
+                FROM USUARIO AS usuario
+                LEFT JOIN CAJAS AS caja ON caja.idCaja = usuario.caja
+                LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
+                WHERE usuario.idUsuario = @idUsuario
+            ";
+
                     var usuario = conexion.QueryFirstOrDefault<Usuario>(query, new { idUsuario = idUsuario });
                     return usuario != null ? Ok(usuario) : NotFound("Usuario no encontrado");
                 }
@@ -71,9 +87,10 @@ namespace CashierQueueAPI.Controllers
             }
         }
 
+
         [HttpGet]
         [Route("BuscarUsuario")]
-        public IActionResult BuscarUser([FromQuery] int idUsuario)
+        public IActionResult BuscarUser([FromQuery] string usuario)
         {
             try
             {
@@ -90,8 +107,8 @@ namespace CashierQueueAPI.Controllers
                     FROM USUARIO AS usuario
                     LEFT JOIN CAJAS as caja ON caja.idCaja = usuario.caja
                     LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
-                    WHERE usuario.idUsuario = @idUsuario";
-                    var parameters = new { idUsuario };
+                    WHERE usuario.usuario = @usuario";
+                    var parameters = new { usuario };
                     var usuarios = conexion.Query(query, parameters).ToList();
                     return StatusCode(200, new { code = "200", coincidencia = usuarios });
                 }
@@ -101,80 +118,6 @@ namespace CashierQueueAPI.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
-        public class loginRequest
-        {
-            public string usuario { get; set; }
-        }
-
-        [HttpPost]
-        [Route("Login")]
-        public IActionResult LogIn([FromBody] loginRequest usuario)
-        {
-            try
-            {
-                using (var conexion = new SqlConnection(cadenaSQL))
-                {
-                    conexion.Open();
-                    string query = @"SELECT idUsuario, 
-                    nombre, apellido, rol, caja,
-                    caja.nCaja as nCaja,
-                    seccion.nSeccion as nSeccion
-                    FROM USUARIO AS usuario
-                    LEFT JOIN CAJAS as caja ON caja.idCaja = usuario.caja
-                    LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
-                    WHERE usuario.usuario = @usuario";
-                    var parameters = new { usuario.usuario };
-                    var usuarioLogueado = conexion.QueryFirstOrDefault(query, parameters);
-                    if (usuarioLogueado != null)
-                    {
-                        return StatusCode(200, new { code = "200", mensaje = "Usuario logueado correctamente", usuario = usuarioLogueado });
-                    }
-                    else
-                    {
-                        return StatusCode(401, new { code = "401", mensaje = "Usuario Inexistente" });
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("LogOut")]
-        public IActionResult LogOut([FromBody] int idUsuario)
-        {
-            try
-            {
-                using (var conexion = new SqlConnection(cadenaSQL))
-                {
-                    conexion.Open();
-                    string query = @"
-                UPDATE CAJAS
-                SET disponibilidad = 0
-                WHERE idCaja IN (SELECT caja FROM USUARIO WHERE idUsuario = @idUsuario AND caja IS NOT NULL);
-            ";
-                    var parameters = new { idUsuario };
-                    int filasAfectadas = conexion.Execute(query, parameters);
-
-                    if (filasAfectadas > 0)
-                    {
-                        return StatusCode(200, new { code = "200", mensaje = "Usuario deslogueado correctamente" });
-                    }
-                    else
-                    {
-                        return StatusCode(404, new { code = "404", mensaje = "Usuario no encontrado o sin caja asignada" });
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { code = "500", mensaje = "Error interno: " + ex.Message });
-            }
-        }
-
 
         public class UsuarioDto
         {
