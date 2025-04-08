@@ -49,7 +49,7 @@ namespace CashierQueueAPI.Controllers
                 "INSERT INTO USUARIO (nombre, apellido, usuario, passwordHash, rol, caja) VALUES (@Nombre, @Apellido, @Usuario, @PasswordHash, @Rol, 2)",
                 new { Nombre = request.Nombre, Apellido = request.Apellido, Usuario = request.Usuario, PasswordHash = passwordHash, Rol = request.Rol });
 
-            return rowsAffected > 0 ? Ok(new { code = "USER_REGISTERED", message = "Usuario registrado" }) : BadRequest(new { code = "REGISTRATION_ERROR", message = "Error al registrar usuario" });
+            return rowsAffected > 0 ? Ok(new { code = "200", message = "Usuario registrado" }) : BadRequest(new { code = "REGISTRATION_ERROR", message = "Error al registrar usuario" });
           
         }
 

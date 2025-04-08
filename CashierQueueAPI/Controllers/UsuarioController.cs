@@ -64,20 +64,21 @@ namespace CashierQueueAPI.Controllers
                 {
                     conexion.Open();
                     string query = @"
-                SELECT
-                    usuario.idUsuario, 
-                    usuario.nombre, 
-                    usuario.apellido, 
-                    usuario.rol, 
-                    caja.nCaja,
-                    seccion.nSeccion
-                FROM USUARIO AS usuario
-                LEFT JOIN CAJAS AS caja ON caja.idCaja = usuario.caja
-                LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
-                WHERE usuario.idUsuario = @idUsuario
-            ";
+                    SELECT
+                        usuario.idUsuario, 
+                        usuario.nombre, 
+                        usuario.apellido, 
+                        usuario.rol,
+                        usuario.caja AS idCaja,
+                        caja.nCaja,
+                        seccion.nSeccion
+                    FROM USUARIO AS usuario
+                    LEFT JOIN CAJAS AS caja ON caja.idCaja = usuario.caja
+                    LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
+                    WHERE usuario.idUsuario = @idUsuario
+                ";
 
-                    var usuario = conexion.QueryFirstOrDefault<Usuario>(query, new { idUsuario = idUsuario });
+                    var usuario = conexion.QueryFirstOrDefault(query, new { idUsuario = idUsuario });
                     return usuario != null ? Ok(usuario) : NotFound("Usuario no encontrado");
                 }
             }
