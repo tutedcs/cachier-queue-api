@@ -177,10 +177,17 @@ namespace CashierQueueAPI.Controllers
             });
         }
 
+        public class LogoutRequest
+        {
+            public int idUsuario { get; set; }
+        }
+
+
         [HttpPost]
         [Route("LogOut")]
-        public IActionResult LogOut([FromBody] int idUsuario)
+        public IActionResult LogOut([FromBody] LogoutRequest request)
         {
+            int idUsuario = request.idUsuario;
             try
             {
                 using var conexion = new SqlConnection(cadenaSQL);
