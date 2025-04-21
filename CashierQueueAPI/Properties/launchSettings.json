@@ -24,10 +24,11 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
+      // MuestraTute+
+      //"applicationUrl": "https://192.168.79.122:7216;http://192.168.79.122:5170",
       // Desarrollo
       "applicationUrl": "https://localhost:7216;http://localhost:5170",
       // Produccion
-      //"applicationUrl": "https://34.55.155.179:7216;https://34.55.155.179:5170",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
