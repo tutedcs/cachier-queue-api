@@ -209,5 +209,28 @@ namespace CashierQueueAPI.Controllers
             }
         }
 
+        [HttpDelete]
+        [Route("DeleteUser/{idUsuario}")]
+        public IActionResult Delete(int idUsuario)
+        {
+            try
+            {
+                using (var conexion = new SqlConnection(cadenaSQL))
+                {
+                    conexion.Open();
+                    string query = @"DELETE FROM USUARIO WHERE idUsuario = @idUsuario";
+                    var parameters = new
+                    {
+                        idUsuario= idUsuario
+                    };
+                    conexion.Execute(query, parameters);
+                    return StatusCode(200, new { code = "200" ,mensaje = "Usuario eliminado correctamente" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
     }
  }
