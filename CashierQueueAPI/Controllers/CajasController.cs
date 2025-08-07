@@ -95,30 +95,6 @@ namespace CashierQueueAPI.Controllers
         }
 
 
-        // En Desuso
-
-        //[HttpGet]
-        //[Route("GetDisponiblesXSeccion/{idSeccion}")]
-        //public IActionResult ListarDisponiblesXSeccion(int idSeccion)
-        //{
-        //    List<Cajas> lista = new List<Cajas>();
-
-        //    try
-        //    {
-        //        using (var conexion = new SqlConnection(cadenaSQL))
-        //        {
-        //            conexion.Open();
-        //            var query = "SELECT * FROM CAJAS WHERE seccion = @idSeccion AND disponibilidad = 1";
-        //            lista = conexion.Query<Cajas>(query, new { idSeccion }).ToList();
-        //        }
-        //        return StatusCode(StatusCodes.Status200OK, new { code = "200", Response = lista });
-        //    }
-        //    catch (Exception error)
-        //    {
-        //        return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = error.Message, Response = lista });
-        //    }
-        //}
-
         [HttpGet]
         [Route("GetInfoCaja/{idCaja}")]
         public IActionResult GetInfoCaja(int idCaja)
@@ -146,38 +122,5 @@ namespace CashierQueueAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = error.Message });
             }
         }
-
-        // En Desuso
-
-        //[HttpPut]
-        //[Route("SwitchDisponibilidad/{idCaja}")]
-        //public IActionResult SwitchDisponibilidad(int idCaja)
-        //{
-        //    try
-        //    {
-        //        using (var conexion = new SqlConnection(cadenaSQL))
-        //        {
-        //            conexion.Open();
-        //            var querySelect = "SELECT disponibilidad FROM CAJAS WHERE idCaja = @idCaja";
-        //            var disponibilidad = conexion.QuerySingleOrDefault<bool>(querySelect, new { idCaja });
-
-        //            if (disponibilidad == null)
-        //            {
-        //                return StatusCode(StatusCodes.Status404NotFound, new { mensaje = "Caja no encontrada" });
-        //            }
-
-        //            var nuevaDisponibilidad = !disponibilidad;
-        //            var queryUpdate = "UPDATE CAJAS SET disponibilidad = @nuevaDisponibilidad WHERE idCaja = @idCaja";
-        //            conexion.Execute(queryUpdate, new { nuevaDisponibilidad, idCaja });
-
-        //            return StatusCode(StatusCodes.Status200OK, new { code = "200", mensaje = "Disponibilidad actualizada correctamente" });
-        //        }
-        //    }
-        //    catch (Exception error)
-        //    {
-        //        return StatusCode(StatusCodes.Status500InternalServerError, new { mensaje = error.Message });
-        //    }
-        //}
-
     }
 }
