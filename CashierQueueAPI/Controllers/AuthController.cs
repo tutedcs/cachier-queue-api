@@ -2,9 +2,7 @@
 using System.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using Dapper;
-using Microsoft.Extensions.Configuration;
 
 namespace CashierQueueAPI.Controllers
 {
@@ -119,29 +117,21 @@ namespace CashierQueueAPI.Controllers
         {
             using var connection = new SqlConnection(cadenaSQL);
 
-            // Sin usar //
-
-            // Verificar si la caja está libre
-            //var cajaDisponible = await connection.QueryFirstOrDefaultAsync<bool>(
-            //    "SELECT CASE WHEN isLogged = 0 THEN 1 ELSE 0 END FROM CAJAS WHERE idCaja = @idCaja",
-            //    new { idCaja = request.idCaja });
-
-            //if (!cajaDisponible)
-            //{
-            //    return Conflict(new { code = "CAJA_OCUPADA", message = "La caja ya está en uso. Seleccione otra." });
-            //}
-
             // Asignar caja al usuario y marcar caja como logueada
             var query = @"
                 UPDATE USUARIO SET caja = @idCaja WHERE idUsuario = @idUsuario;
                 UPDATE CAJAS SET isLogged = 1 WHERE idCaja = @idCaja;
             ";
 
-            await connection.ExecuteAsync(query, new
-            {
-                idCaja = request.idCaja,
-                idUsuario = request.idUsuario
-            });
+            await connection.ExecuteAsync(query, request);
+
+            // Insertar log de inicio de sesion
+            var query2 = @"
+                INSERT INTO SESIONLOG (idUsuario, idCaja, fechaLog)
+                VALUES (@idUsuario, @idCaja, GETDATE())
+            ";
+
+            await connection.ExecuteAsync(query2, request);
 
             return Ok(new
             {

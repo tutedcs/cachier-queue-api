@@ -1,7 +1,7 @@
 using CashierQueueAPI.Hubs;
 using Microsoft.AspNetCore.SignalR;
 
-var builder = WebApplication.CreateBuilder(args);
+ var builder = WebApplication.CreateBuilder(args);
 string cors = "ConfigurarCors";
 
 builder.Services.AddControllers();

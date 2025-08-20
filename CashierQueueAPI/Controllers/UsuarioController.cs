@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
 using System.Data;
 using Dapper;
-using System.Security.Cryptography;
 using CashierQueueAPI.Models;
 using System.Text;
 
@@ -17,12 +16,12 @@ namespace CashierQueueAPI.Controllers
 
         public UsuarioController(IConfiguration config)
         {
-            cadenaSQL = config.GetConnectionString("CadenaSQL");
+            cadenaSQL = config.GetConnectionString("CadenaSQL") ?? throw new ArgumentNullException(nameof(cadenaSQL), "Connection string cannot be null.");
         }
 
         [HttpGet]
         [Route("Listar")]
-        public IActionResult Listar([FromQuery] int? idSeccion = null)
+        public IActionResult Listar([FromQuery] int? idSeccion = null, [FromQuery] bool? admin = true)
         {
             try
             {
@@ -30,21 +29,22 @@ namespace CashierQueueAPI.Controllers
                 {
                     conexion.Open();
                     string query = @"
-                    SELECT
-                        usuario.idUsuario,
-                        usuario.nombre,
-                        usuario.apellido,
-                        usuario.usuario,
-                        usuario.rol,
-                        caja.nCaja AS caja,
-                        seccion.nSeccion AS seccion
-                    FROM USUARIO AS usuario
-                    INNER JOIN CAJAS AS caja ON caja.idCaja = usuario.caja
-                    LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
-                    WHERE (@idSeccion IS NULL OR seccion.idSeccion = @idSeccion)
-                    ORDER BY CASE WHEN usuario.rol = 1 THEN 0 ELSE 1 END, usuario.rol";
+            SELECT
+                usuario.idUsuario,
+                usuario.nombre,
+                usuario.apellido,
+                usuario.usuario,
+                usuario.rol,
+                caja.nCaja AS caja,
+                seccion.nSeccion AS seccion
+            FROM USUARIO AS usuario
+            INNER JOIN CAJAS AS caja ON caja.idCaja = usuario.caja
+            LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
+            WHERE (@idSeccion IS NULL OR seccion.idSeccion = @idSeccion)
+              AND (@admin IS NULL OR (@admin = 0 AND usuario.rol <> 1) OR (@admin = 1))
+            ORDER BY CASE WHEN usuario.rol = 1 THEN 0 ELSE 1 END, usuario.rol";
 
-                    var usuarios = conexion.Query(query, new { idSeccion }).ToList();
+                    var usuarios = conexion.Query(query, new { idSeccion, admin }).ToList();
                     return Ok(usuarios);
                 }
             }
@@ -53,6 +53,7 @@ namespace CashierQueueAPI.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
 
         [HttpGet]
         [Route("BuscarPorId/{idUsuario}")]
@@ -88,10 +89,9 @@ namespace CashierQueueAPI.Controllers
             }
         }
 
-
         [HttpGet]
-        [Route("BuscarUsuario")]
-        public IActionResult BuscarUser([FromQuery] string usuario)
+        [Route("BuscarUsuario/{usuario:int}")]
+        public IActionResult BuscarUser(string usuario)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace CashierQueueAPI.Controllers
                     LEFT JOIN SECCION AS seccion ON seccion.idSeccion = caja.seccion
                     WHERE usuario.usuario = @usuario";
                     var parameters = new { usuario };
-                    var usuarios = conexion.Query(query, parameters).ToList();
+                    var usuarios = conexion.Query(query, parameters);
                     return StatusCode(200, new { code = "200", coincidencia = usuarios });
                 }
             }
@@ -124,7 +124,6 @@ namespace CashierQueueAPI.Controllers
         {
             public int idUsuario { get; set; }
         }
-
 
         [HttpPost]
         [Route("Register")]
